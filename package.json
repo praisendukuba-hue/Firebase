@@ -2,6 +2,7 @@
   "name": "firebase-functions",
   "description": "DOGS Rewards Bot Firebase Functions",
   "scripts": {
+    "start": "node index.js",
     "serve": "firebase emulators:start --only functions",
     "deploy": "firebase deploy --only functions"
   },
