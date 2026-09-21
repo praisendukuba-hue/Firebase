@@ -25,7 +25,9 @@ try {
     credential: admin.credential.cert(serviceAccount)
   });
 
-  console.log("Firebase Admin initialized successfully");
+  console.log(
+    "Firebase Admin initialized successfully"
+  );
 
 } catch (error) {
 
@@ -35,6 +37,11 @@ try {
   );
 
 }
+
+
+// ==========================================
+// FIRESTORE
+// ==========================================
 
 const db = admin.firestore();
 
@@ -46,106 +53,143 @@ const db = admin.firestore();
 app.get("/", (req, res) => {
 
   res.status(200).json({
+
     ok: true,
-    service: "DOGS Rewards Firebase API"
+
+    service:
+      "DOGS Rewards Firebase API"
+
   });
 
 });
 
 
 // ==========================================
-// CHECK USER BAN STATUS
+// CHECK USER STATUS
 // ==========================================
 
 app.get("/checkBan", async (req, res) => {
 
   try {
 
-    const userId = req.query.user_id;
+    const userId =
+      req.query.user_id;
 
-    // ------------------------------
+
+    // ======================================
     // USER ID REQUIRED
-    // ------------------------------
+    // ======================================
 
     if (!userId) {
 
       return res.status(400).json({
+
         ok: false,
-        error: "Missing user_id"
+
+        error:
+          "Missing user_id"
+
       });
 
     }
 
 
-    // ------------------------------
+    // ======================================
     // FIRESTORE USER DOCUMENT
-    // ------------------------------
+    // ======================================
 
-    const userRef = db
-      .collection("dog_users")
-      .doc(String(userId));
+    const userRef =
+      db
+        .collection("dog_users")
+        .doc(String(userId));
+
 
     const userSnapshot =
       await userRef.get();
 
 
-    // ------------------------------
+    // ======================================
     // USER DOES NOT EXIST
-    // ------------------------------
+    // ======================================
 
     if (!userSnapshot.exists) {
 
       return res.status(200).json({
+
         ok: true,
-        banned: false
+
+        banned: false,
+
+        approved: false
+
       });
 
     }
 
 
-    // ------------------------------
+    // ======================================
     // READ USER DATA
-    // ------------------------------
+    // ======================================
 
     const userData =
       userSnapshot.data();
 
 
-    // ------------------------------
+    // ======================================
     // BAN STATUS
-    // ------------------------------
+    // ======================================
 
     const banned =
       userData.banned === true ||
       String(userData.banned).toLowerCase() === "true";
 
 
-    // ------------------------------
+    // ======================================
+    // APPROVAL STATUS
+    //
+    // Your Mini App uses:
+    // verified: true
+    //
+    // Therefore:
+    // verified true = approved
+    // ======================================
+
+    const approved =
+      userData.verified === true ||
+      String(userData.verified).toLowerCase() === "true";
+
+
+    // ======================================
     // RESPONSE
-    // ------------------------------
+    // ======================================
 
     return res.status(200).json({
 
       ok: true,
 
-      banned: banned
+      banned: banned,
+
+      approved: approved
 
     });
 
   } catch (error) {
 
     console.error(
-      "Ban check error:",
+      "User status check error:",
       error
     );
+
 
     return res.status(500).json({
 
       ok: false,
 
-      error: "Ban check failed",
+      error:
+        "User status check failed",
 
-      details: error.message
+      details:
+        error.message
 
     });
 
